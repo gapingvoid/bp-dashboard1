@@ -46,7 +46,8 @@ if show_table:
             # get all data that used the selector
             prog_df = table.df[table.df[denominator_sel] == 1]
         except:
-            st.warning("If selecting a category, you must also select a question from the category in the expander.")
+            st.warning("If selecting a category, you must also select a question from the category in the expander. "
+                       "Otherwise the dashboard will default to all data.")
             prog_df = table.df  # in case someone selects a category but not a subcategory
 
     # calculate percent and create figure
