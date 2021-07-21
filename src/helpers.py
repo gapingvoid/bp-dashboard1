@@ -67,9 +67,9 @@ def get_table_download_link(df):
     return f'<a href="data:application/octet-stream;base64,{b64.decode()}" download="GVfiltered.xlsx">Download Filtered Data</a>'
 
 
-def percent_data(filtered_df, table):
+def percent_data(filtered_df, table_df):
     num_filtered = [filtered_df.shape[0]]
-    total_data = [table.df.shape[0] - filtered_df.shape[0]]
+    total_data = [table_df.shape[0] - filtered_df.shape[0]]
     fig = go.Figure(data=[
         go.Bar(name="Filtered Stories", x=num_filtered, y=["Stories     "], orientation="h", width=[.1]),
         go.Bar(name="Total Stories", x=total_data, y=["Stories     "], orientation="h", width=[.1])
