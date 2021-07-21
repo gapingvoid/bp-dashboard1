@@ -39,12 +39,17 @@ if show_table:
     # if there hasn't been filter selected, just use "All" which refers to the unfiltered df
     if denominator_q == "All" or filtered_df.shape == table.df.shape:
         prog_df = table.df
-    else:
+    else:   #TODO: Hacky af
         try:
             # get selected value from the question we're using as the denominator
+            st.write(table.df.columns)
+            st.write(denominator_q.lower())
             denominator_sel = getattr(expander, denominator_q.lower())[0]
             # get all data that used the selector
-            prog_df = table.df[table.df[denominator_sel] == 1]
+            try:
+                prog_df = table.df[(table.df[denominator_sel] == 1)]
+            except:
+                prog_df = table.df[table.df[denominator_q] == denominator_sel]
         except:
             st.warning("If selecting a category, you must also select a question from the category in the expander. "
                        "Otherwise the dashboard will default to all data.")
