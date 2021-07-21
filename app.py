@@ -42,8 +42,6 @@ if show_table:
     else:   #TODO: Hacky af
         try:
             # get selected value from the question we're using as the denominator
-            st.write(table.df.columns)
-            st.write(denominator_q.lower())
             denominator_sel = getattr(expander, denominator_q.lower())[0]
             # get all data that used the selector
             try:
