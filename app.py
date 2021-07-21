@@ -4,7 +4,6 @@ from src.Graph import Graph
 from src.helpers import percent_data, get_table_download_link
 import streamlit as st
 
-
 st.set_page_config(layout="wide")
 
 # Title
@@ -15,39 +14,43 @@ table = Table()
 
 # display graphs
 st.sidebar.subheader("Graphs")
-
 graph = Graph()
 graph_selections = st.sidebar.multiselect("Select graphs to display", list(graph.graph_types.keys()))
 display_graphs = False if graph_selections == [] else True
-
-
 # display graphs
 if display_graphs:
     with st.beta_expander("Graphs", True):
         graph.display(graph_selections, table)
-        if "Triads" in graph_selections:  # select from stories
-            story_selections = st.multiselect(label="Display Stories", options=table.df.index)
-            if story_selections:  # display stories as table if not empty
-                st.table(table.df.Story.iloc[story_selections])
-                for triads in graph.graph_types["Triads"]:  # update points on graph
-                    fig, col = triads[0], triads[1]
-                    # get actual index of story on graph, unrelated to value because of previously removed NaNs
-                    idxs = [i for i, val in enumerate(fig.data[0].hovertext) if val in story_selections]
-                    fig.data[0].update(selectedpoints=idxs,
-                                       selected=dict(marker=dict(color='red')),  # color of selected points
-                                       unselected=dict(marker=dict(color='rgb(200,200, 200)',  # color of unselected pts
-                                                                   opacity=0.9)))
-                    col.plotly_chart(fig, use_container_width=True)
+        # update triads to allow selecting stories
+        if "Triads" in graph_selections:
+            graph.update_triads(table)
 
 # display table and expander
 st.sidebar.subheader("Data")
 show_table = st.sidebar.checkbox("Display Data", value=True)
 if show_table:
     expander = Expander(table)
+    # filter dataframe
     filtered_df = table.filter_data(expander)
-    prog_bar, percent = st.beta_columns([9, 1])
-    prog_bar.plotly_chart(percent_data(filtered_df, table), config=dict(displayModeBar=False), use_container_width=True)
-    percent.write(" ")  # hack for formatting
-    percent.write("{}%".format(round(filtered_df.shape[0] / table.df.shape[0] * 100)))
+    # create progress bar showing filter as a fraction of total data
+    prog_bar, percent, select = st.beta_columns([7, 1, 2])
+    # get the category we will use as the denominator
+    denominator_q = select.selectbox("Fraction of", options=expander.questions, index=0)
+    # if there hasn't been filter selected, just use "All" which refers to the unfiltered df
+    if denominator_q == "All" or filtered_df.shape == table.df.shape:
+        prog_df = table.df
+    else:
+        # get selected value from the question we're using as the denominator
+        denominator_sel = getattr(expander, denominator_q.lower())[0]
+        # get all data that used the selector
+        prog_df = table.df[table.df[denominator_sel] == 1]
+
+    # calculate percent and create figure
+    prog_bar.plotly_chart(percent_data(filtered_df, prog_df), config=dict(displayModeBar=False), use_container_width=True)
+    percent.write(" ")
+    percent.write(" ")
+    percent.write("{}%".format(round(filtered_df.shape[0] / prog_df.shape[0] * 100)))
+    # display table
     table.display(filtered_df, expander)
+    # donwnloadable link
     st.sidebar.markdown(get_table_download_link(filtered_df), unsafe_allow_html=True)

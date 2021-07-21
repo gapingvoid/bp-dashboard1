@@ -160,3 +160,18 @@ class Graph:
                             fig = self.heatmap(pos[row][col], x, y)
                             self.graph_types[s].append(fig)
                             row, col = self.increment_position(row, col)
+
+    # display selected points on triads
+    def update_triads(self, table):
+        story_selections = st.multiselect(label="Display Stories", options=table.df.index)
+        if story_selections:  # display stories as table if not empty
+            st.table(table.df.Story.iloc[story_selections])
+            for triads in self.graph_types["Triads"]:  # update points on graph
+                fig, col = triads[0], triads[1]
+                # get actual index of story on graph, unrelated to value because of previously removed NaNs
+                idxs = [i for i, val in enumerate(fig.data[0].hovertext) if val in story_selections]
+                fig.data[0].update(selectedpoints=idxs,
+                                   selected=dict(marker=dict(color='red')),  # color of selected points
+                                   unselected=dict(marker=dict(color='rgb(200,200, 200)',  # color of unselected pts
+                                                               opacity=0.9)))
+                col.plotly_chart(fig, use_container_width=True)

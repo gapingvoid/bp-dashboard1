@@ -17,6 +17,8 @@ class Expander:
         self.terms = self.word_search(self.row1[1])  # search
 
         # ROW 2
+        self.questions = ["All", "Leadership", "Office", "People", "Relationnships", "Common", "Function", "Role",
+                          "Experience", "Country", "Sentiment"]
         self.leadership = self.multiselect(self.row2[0], "Leaderhsip focused on...",
                                            table.df.columns[7:17])
         self.office = self.multiselect(self.row2[1], "Office could benefit from...",
