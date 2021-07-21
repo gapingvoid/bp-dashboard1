@@ -43,11 +43,15 @@ if show_table:
         # get selected value from the question we're using as the denominator
         denominator_sel = getattr(expander, denominator_q.lower())[0]
         # get all data that used the selector
-        prog_df = table.df[table.df[denominator_sel] == 1]
+        try:
+            prog_df = table.df[table.df[denominator_sel] == 1]
+        except:
+            st.warning("If selecting a category, you must also select a question from the category in the expander.")
+            prog_df = table.df  # in case someone selects a category but not a subcategory
 
     # calculate percent and create figure
     prog_bar.plotly_chart(percent_data(filtered_df, prog_df), config=dict(displayModeBar=False), use_container_width=True)
-    percent.write(" ")
+    percent.write(" ")  # whitespace
     percent.write(" ")
     percent.write("{}%".format(round(filtered_df.shape[0] / prog_df.shape[0] * 100)))
     # display table
